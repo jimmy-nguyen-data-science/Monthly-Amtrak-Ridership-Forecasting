@@ -38,7 +38,7 @@ Data Exploration and Modeling was all done in Rstudio
 To clone this repository onto your device, use the commands below:
 
 	1. git init
-	2. git clone git@github.com:Jimmy-Nguyen-Data-Science-Portfolio/Travel-Insurance-Predictions.git
+	2. git clone git@github.com:jimmy-nguyen-cal/Monthly-Amtrak-Ridership-Forecasting.git
 
 
 # About the Project
@@ -89,9 +89,7 @@ To clone this repository onto your device, use the commands below:
 
 
 # Presentations and Reports
-* [Report]()
-* [Presentation Slides]()
-* [R - Code]()
+[]()
 
 
 # Data Visualizations
