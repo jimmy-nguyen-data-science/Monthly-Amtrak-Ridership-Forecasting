@@ -69,11 +69,45 @@ end(df)
 ```{r, fig.align='center', fig.height=5, fig.width=7}
 
 # Make a quick time-series plot
-plot(df, xlab = "Year", ylab = "Number of Passengers", 
+ts.plot(df, xlab = "Year", ylab = "Number of Passengers", 
      main = "Amtrak Ridership, 1991-2013", col = 4)
 
 ```
 
+## Data Transformations
+
+- We can use these transformations to remove or filter any possible trends in the data
+- E.g., log transformations or difference, etc.
 
 
+
+```{r, fig.align='center', fig.height=9, fig.width=7}
+par(mfrow=c(4,1))
+
+# Original
+ts.plot(df, xlab = "Year", ylab = "Number of Passengers", 
+     main = "Original Amtrak Ridership, 1991-2013", col = 5)
+
+# log
+ts.plot(log(df), xlab = "Year", ylab = "Log", 
+     main = "Log Amtrak Ridership, 1991-2013", col = 3)
+
+# difference
+ts.plot(diff(df), xlab = "Year", ylab = "Difference", 
+     main = "Difference Amtrak Ridership, 1991-2013", col = 6)
+
+
+# seasonal differencing 
+ts.plot(diff(df, s = 4), xlab = "Year", ylab = "Seasonal difference", 
+     main = "Seasonal Difference Amtrak Ridership, 1991-2013", col = 8)
+
+```
+
+
+\textcolor{red}{\textbf{Analysis: }}
+
+- The log transformation can linearize a rapid growth trend and can also stabilize a series that exhibits increasing variance. Although the main restriction is that the log transformation is only defined for positively valued time series.
+- Difference transformations can remove linear trend.
+- For time series with seasonal trends, seasonal differencing can remove those periodic patterns. 
+- For monthly or quarterly data, an appropriate value of s would be 12 or 4. Although there wasn't a difference when including the seasonal term in the bottom graph.
 
