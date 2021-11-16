@@ -1,0 +1,79 @@
+---
+title: "ADS 506: Monthly Amtrak Ridership Forecasting Final Project"
+author: "Team 3: Jimmy Nguyen, Aubrey Barrett, Luke Awino"
+date: "11/15/2021"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: 5
+  html_document:
+    toc: yes
+    toc_depth: '5'
+    df_print: paged
+---
+
+
+
+\newpage
+
+# Libraries
+
+```{r,message=FALSE, warning=FALSE}
+library(astsa)
+library(zoo)
+library(xts)
+library(pander)
+library(tidyverse)
+library(lubridate)
+```
+
+
+# Data Set
+
+\textcolor{red}{\textbf{Code: }}
+
+```{r}
+# Load the data set from CSV file
+df <- read.csv("/Coding//Monthly-Amtrak-Ridership-Forecasting/Data/Amtrak Ridership Data.csv")
+
+# Rename columns
+names(df)[1] <- 'Dates'
+names(df[2]) <- 'Number_of_Passengers'
+
+
+# First 12 months in 1991
+head(df, n = 12) %>% 
+  pander(style = "grid", caption = "First 12 Months - 1991")
+
+
+```
+
+\newpage
+
+
+```{r}
+# convert to time series object 
+df<- ts(data = df[,2], start = c(1991,1), 
+        end = c(2013,5), frequency = 12)
+
+print("Starting Year and Month: ")
+start(df)
+
+print("Final Year and Month: ")
+end(df)
+```
+
+
+
+```{r, fig.align='center', fig.height=5, fig.width=7}
+
+# Make a quick time-series plot
+plot(df, xlab = "Year", ylab = "Number of Passengers", 
+     main = "Amtrak Ridership, 1991-2013", col = 4)
+
+```
+
+
+
+
