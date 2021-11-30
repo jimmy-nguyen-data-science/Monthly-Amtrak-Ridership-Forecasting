@@ -3,8 +3,7 @@ title: "ADS 506: Monthly Amtrak Ridership Forecasting Final Project"
 author: "Team 3: Jimmy Nguyen, Luke Awino"
 date: "11/27/2021"
 output: 
-  pdf_document:
-    latex_engine: xelatex
+  pdf_document: 
     toc: yes
     toc_depth: 5
   html_document:
@@ -12,8 +11,6 @@ output:
     toc_depth: '5'
     df_print: paged
 ---
-
-
 
 \newpage
 
@@ -28,19 +25,22 @@ library(xts)
 library(pander)
 library(tidyverse)
 library(lubridate)
+library(arfima)
+library(tseries)
+library(fGarch)
+library(xts)
+library(fracdiff)
 
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 ```
-
 
 # Data Set
 
 \textcolor{red}{\textbf{Code: }}
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Load the data set from CSV file
 df <- read_csv("C:/Coding/Monthly-Amtrak-Ridership-Forecasting/Data/Amtrak Ridership Data.csv")
-
 
 # Rename columns
 names(df)[1] <- 'Dates'
@@ -58,7 +58,6 @@ head(df, n = 12) %>%
 
 ## Data Exploration
 
-
 \textcolor{red}{\textbf{Code: }}
 
 ```{r}
@@ -73,9 +72,7 @@ print("Final Year and Month: ")
 end(df)
 ```
 
-
 \textcolor{red}{\textbf{Code: }}
-
 
 ```{r, fig.align='center', fig.height=5, fig.width=7}
 
@@ -86,28 +83,23 @@ plot(df, xlab = "Year", ylab = "Number of Passengers",
 
 ```
 
-
 \newpage
 
 # Data Pre-processing
-
 
 ## Smoothing Methods (Moving Average)
 
 At the beginning of our data exploration, we were able to see there are components that change over time. Thus, we will need to look into data-driven methods because it deals data without a predetermined structure.
 
-
 ### Moving Average
 
-- This method is a simple smoother, it contains the average values across a time window, $w$, specified by the user. Two types of moving averages:
+-   This method is a simple smoother, it contains the average values across a time window, $w$, specified by the user. Two types of moving averages:
 
-- a centered-moving average: useful for visualizing trends since averaging can suppress seasonality and noise 
-- a trailing moving average: useful for forecasting
-  
+-   a centered-moving average: useful for visualizing trends since averaging can suppress seasonality and noise
 
+-   a trailing moving average: useful for forecasting
 
 \textcolor{red}{\textbf{Code: }}
-
 
 ```{r, fig.align='center', fig.width=8, fig.height=6}
 
@@ -137,22 +129,16 @@ legend(1991,2800000, c("Ridership","Centered Moving Average",
 lwd=c(1,2,2), bty = "n", col = c("grey41", 'red', 'blue'))
 ```
 
-
 \textcolor{red}{\textbf{Analysis: }}
 
-Since the goal is to suppress seasonality in the data to visualize the trend, we should choose the length of a seasonal cycle. _The Amtrak ridership data indicates a choice of $w = 12$._
+Since the goal is to suppress seasonality in the data to visualize the trend, we should choose the length of a seasonal cycle. *The Amtrak ridership data indicates a choice of* $w = 12$.
 
-- This figure shows somewhat of a global U-shape, but the moving average looks to increase as the year passes.
-- However, since centered moving averages uses data both in the past and future of a given time point, they cannot be used for forecasting because the future is typically unknown. 
-
+-   This figure shows somewhat of a global U-shape, but the moving average looks to increase as the year passes.
+-   However, since centered moving averages uses data both in the past and future of a given time point, they cannot be used for forecasting because the future is typically unknown.
 
 ### Trailing Moving Average
 
 Therefore, trailing moving averages is the better approach here where the window of width is placed over the most recent available values.
-
-
-
-
 
 ```{r, fig.align='center', fig.width=8, fig.height=6}
 # Validation Data
@@ -196,44 +182,49 @@ lines(ma.trailing.pred, lwd = 2, col = "blue", lty = 2)
 
 ```
 
-
 \textcolor{red}{\textbf{Analysis: }}
 
-- The first thing to notice is that the forecasts for all the months in the validation period denoted in blue and blue dashes are identical because this method is not roll-forward next month forecasts. It is clear that the trailing moving average forecaster is inadequate for the Amtrak monthly forecast task. The reason why is because it does not capture the seasonality in the data. The forecaster predicted seasons with high ridership with lower ridership and seasons with low ridership with high ridership. This occurs because the moving average lags behind when forecasting a time series with a trend. Therefore, over-forecasting and under-forecasting in the presence of increasing and decreasing trends. So, between the smoothing methods of moving averages, it should only be use for forecasting when a series lack seasonality and trend, which is not true here for the Amtrak ridership data. 
+-   The first thing to notice is that the forecasts for all the months in the validation period denoted in blue and blue dashes are identical because this method is not roll-forward next month forecasts. It is clear that the trailing moving average forecaster is inadequate for the Amtrak monthly forecast task. The reason why is because it does not capture the seasonality in the data. The forecaster predicted seasons with high ridership with lower ridership and seasons with low ridership with high ridership. This occurs because the moving average lags behind when forecasting a time series with a trend. Therefore, over-forecasting and under-forecasting in the presence of increasing and decreasing trends. So, between the smoothing methods of moving averages, it should only be use for forecasting when a series lack seasonality and trend, which is not true here for the Amtrak ridership data.
 
-- However, there are other approaches for removing trends and seasonality, such as regression models or differencing. 
-- Then we can use the moving average to forecast a de-trended and de-seasonalized series.
+-   However, there are other approaches for removing trends and seasonality, such as regression models or differencing.
 
+-   Then we can use the moving average to forecast a de-trended and de-seasonalized series.
 
 \newpage
 
-## Differencing 
+## Differencing
 
-Differencing is a popular method for removing trend or seasonality patterns by taking the difference between two values in a series. 
+Differencing is a popular method for removing trend or seasonality patterns by taking the difference between two values in a series.
 
-- For example, the lag-1 difference takes the difference between every two consecutive values $(y_t - y_{t-1})$.
-- Meanwhile, differencing at lag-k means to subtract the value from k-periods back $(y_t - y_{t-k})$.
+-   For example, the lag-1 difference takes the difference between every two consecutive values $(y_t - y_{t-1})$.
+-   Meanwhile, differencing at lag-k means to subtract the value from k-periods back $(y_t - y_{t-k})$.
 
-## Detrending 
+## Detrending
 
-Detrending can be used by the lag-1 difference of a series. This would remove the somewhat U-shape of Amtrak ridership series. 
-An advantage of difference is there are no assumptions that the trend is global. 
+Detrending can be used by the lag-1 difference of a series. This would remove the somewhat U-shape of Amtrak ridership series. An advantage of difference is there are no assumptions that the trend is global.
 
-- For quadratic or exponential trends, one more step of lag-1 differencing must be applied to remove the trend.
+-   For quadratic or exponential trends, one more step of lag-1 differencing must be applied to remove the trend.
 
-## Deseasonalizing 
+```{r}
+#test the dataset for stationarity if stationary 
+# no need for differencing if not stationary the data will be differenced.
+
+library(tseries)
+adf.test(df)
+```
+
+given the p-value of 0.01915 we reject the null hypothesis indicating that the data set is stationary.
+
+## Deseasonalizing
 
 We can remove the seasonality of the Amtrak ridership data by using a lag-12 difference series. THis will remove the monthly pattern
 
-## Removing seasonality and trend 
+## Removing seasonality and trend
 
-- When both of these components exist, we can apply differencing twice to the series.
-- Since the Amtrak ridership data has both trend and seasonality, we will perform the doube differencing method in order to de-trend and deseasonalize it. 
-
-
+-   When both of these components exist, we can apply differencing twice to the series.
+-   Since the Amtrak ridership data has both trend and seasonality, we will perform the doube differencing method in order to de-trend and deseasonalize it.
 
 \textcolor{red}{\textbf{Code: }}
-
 
 ```{r, fig.align='center', fig.height=11, fig.width=13}
 par(mfrow=c(2,2))
@@ -257,24 +248,17 @@ plot(diff(diff(df, s = 12)), xlab = "Year", ylab = "Lag-12, then Lag-1",
 
 ```
 
-
-
 \textcolor{red}{\textbf{Analysis: }}
 
-- The lag-1 difference plot on the bottom left contains no visible trend compared to the original series above.
-- If we are dealing with daily data ridership, then we could remove a seasonal pattern of lag-7 differences. However, since we are have monthly data, we are using a lag-12 difference series as shown in the top right figure where the monthly pattern is absent.
-- Lastly, since there are both a seasonality and trend, the double differencing effect on the bottom right panel is a series without trend or monthly seasonality. 
-
-
-\newpage
-
+-   The lag-1 difference plot on the bottom left contains no visible trend compared to the original series above.
+-   If we are dealing with daily data ridership, then we could remove a seasonal pattern of lag-7 differences. However, since we are have monthly data, we are using a lag-12 difference series as shown in the top right figure where the monthly pattern is absent.
+-   Lastly, since there are both a seasonality and trend, the double differencing effect on the bottom right panel is a series without trend or monthly seasonality.
 
 ## Simple Exponential Smoothing
 
 Exponential smoothing works very similar to forecasting with a moving average, except it takes the weighted average over all the past values of a series. By doing so, the weights will decrease exponentially into the past. This is valuable because we give weight to recent information more than the older information. This method is also very popular due to its low computation costs, easy automation, and good performance. However, it is important to note that using exponential smoothing for forecasting assumes no trend or seasonality in a series. So the idea is similar to before with moving averages, by first removing the trend and seasonality, then apply the exponential smoothing forecaster.
 
 \textcolor{red}{\textbf{Code: }}
-
 
 ```{r, fig.align='center', fig.height=6, fig.width=9}
 # remove trend and seasonality by doing double-differencing
@@ -318,17 +302,11 @@ lines(ses.pred$fitted, lwd = 2, col = "blue")
 
 ```
 
-
-
 \textcolor{red}{\textbf{Analysis: }}
 
-For forecasting with simple exponential smoothing, the data trained on was the double-difference ridership data that contains no seasonality or trend. Then we fit the simple exponential smoothing model to the training data set with $\alpha = 0.2$ as default.
-This smoothing model is under the _ets_ framework using the model with additive (A), no trend (N), and no seasonality (N), denoted as "ANN". The forecasts for the validation set for each month remained as the same value similar to the moving average forecast model. This would mean that the simple exponential forecaster or ANN model is also inadequate for the monthly forecasting task. The reason why is because it also does not capture the seasonality in the data.
+For forecasting with simple exponential smoothing, the data trained on was the double-difference ridership data that contains no seasonality or trend. Then we fit the simple exponential smoothing model to the training data set with $\alpha = 0.2$ as default. This smoothing model is under the *ets* framework using the model with additive (A), no trend (N), and no seasonality (N), denoted as "ANN". The forecasts for the validation set for each month remained as the same value similar to the moving average forecast model. This would mean that the simple exponential forecaster or ANN model is also inadequate for the monthly forecasting task. The reason why is because it also does not capture the seasonality in the data.
 
-- Since both moving average and simple exponential smoothing models should only be used for forecasting a time series without trend or seasonality, one solution attempted with these models were de-trending or de-seasonalizing the data. 
-- Another solution is to use a more complex and sophisticated exponential smoothing that is able to model data with both trend and seasonality.
-
+-   Since both moving average and simple exponential smoothing models should only be used for forecasting a time series without trend or seasonality, one solution attempted with these models were de-trending or de-seasonalizing the data.
+-   Another solution is to use a more complex and sophisticated exponential smoothing that is able to model data with both trend and seasonality.
 
 \newpage
-
-
