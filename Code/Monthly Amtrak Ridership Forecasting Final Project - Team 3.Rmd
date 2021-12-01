@@ -27,6 +27,7 @@ library(zoo)
 library(xts)
 library(pander)
 library(tidyverse)
+library(tseries)
 library(lubridate)
 
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
@@ -39,7 +40,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 ```{r}
 # Load the data set from CSV file
-df <- read_csv("C:/Coding/Monthly-Amtrak-Ridership-Forecasting/Data/Amtrak Ridership Data.csv")
+df <- read_csv("../Data/Amtrak Ridership Data.csv")
 
 
 # Rename columns
@@ -214,6 +215,28 @@ Differencing is a popular method for removing trend or seasonality patterns by t
 - For example, the lag-1 difference takes the difference between every two consecutive values $(y_t - y_{t-1})$.
 - Meanwhile, differencing at lag-k means to subtract the value from k-periods back $(y_t - y_{t-k})$.
 
+
+### Dickey-Fuller Test
+
+However, before using differencing as a pre-processing step, we should run a Dickey-Fuller test to see if differencing is actually needed. In other words, this test also check if the time series is stationary or not.
+
+
+\textcolor{red}{\textbf{Code: }}
+
+```{r}
+# Running the Dickey-Fuller Test on the original data without any pre-processing
+adf.test(df)
+```
+
+
+\textcolor{red}{\textbf{Analysis: }}
+
+
+This may be a biased Dickey-Fuller test where we have a type 1 error. There is definitely visible seasonality happening in the data.  
+Since the test rejects the null hypothesis that the series is non-stationary, in this case the series was actually non-stationary. Therefore, we will ignore that it ever happened because we will need to perform a second order difference due to a trend and seasonality pattern in the series.
+-  Alternative approaches without differencing can be aggregating the monthly data into a coarser level such as yearly ridership as the total sum instead.
+
+
 ## Detrending 
 
 Detrending can be used by the lag-1 difference of a series. This would remove the somewhat U-shape of Amtrak ridership series. 
@@ -224,6 +247,8 @@ An advantage of difference is there are no assumptions that the trend is global.
 ## Deseasonalizing 
 
 We can remove the seasonality of the Amtrak ridership data by using a lag-12 difference series. THis will remove the monthly pattern
+
+\newpage
 
 ## Removing seasonality and trend 
 
