@@ -294,6 +294,8 @@ plot(diff(diff(df, s = 12)), xlab = "Year", ylab = "Lag-12, then Lag-1",
 \newpage
 
 
+# Data Modeling
+
 ## Simple Exponential Smoothing
 
 Exponential smoothing works very similar to forecasting with a moving average, except it takes the weighted average over all the past values of a series. By doing so, the weights will decrease exponentially into the past. This is valuable because we give weight to recent information more than the older information. This method is also very popular due to its low computation costs, easy automation, and good performance. However, it is important to note that using exponential smoothing for forecasting assumes no trend or seasonality in a series. So the idea is similar to before with moving averages, by first removing the trend and seasonality, then apply the exponential smoothing forecaster.
@@ -332,15 +334,11 @@ Double Differenced Data", flty = 2)
 # labels
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
-
 # validaiton data
-lines(valid.ts)
-
+lines(valid.ts, col = "blue")
 
 # model from training and validation data
 lines(ses.pred$fitted, lwd = 2, col = "blue")
-
-
 ```
 
 
@@ -357,3 +355,125 @@ This smoothing model is under the _ets_ framework using the model with additive 
 \newpage
 
 
+## Additive Trends
+
+Double exponential smoothing can be used on a series that contain an additive trend. This is also called the Holt's linear trend model. The local trend is estimated and is updated as more data comes in. The equation is specified by $F_{t+k} = L_t + kT_t$, where the k-step-ahead forecast is a combination of the level estimate at time $t$ $L(t)$ and the trend estimate at time $t$ $(Tt)$. There is also two smoothing constants $\alpha$ and $\beta$ which determine the rate of learning and can be constants between 0 and 1 set by the user (Higher values = faster learning). However, there are two types of errors in an exponential model: 
+
+-  Additive error (additive trend): This is where errors are assumed to have a fixed magnitude, meaning the forecasts contain not only the level + trend but also an additional error. $y_{t+1} = L_t + T_t + e_t$
+
+- Multiplicative error (additive trend): This is where the size of the error grows as the level of the series increase, or the error is a percentage increase in the current level plus trend.  $y_{t+1} = (L_t + T_t) * ( 1 + e_t)$
+
+## Multiplicative trends
+
+Although additive trend models assumes the level changes from one period to the next by a fixed amount, multiplicative trends assumes it changes by a factor instead. Thus, the formula is different specified by: $F_{t+k} = L_t * T^k_t$ 
+
+- For the additive error, it will be $y_{t+1} = L_t * T_t + e_t$ for the multiplicative trend model instead.
+- While the multiplicative error stays the same as $y_{t+1} = (L_t + T_t) * ( 1 + e_t)$
+
+
+
+## Exponential smoothing with both a trend and seasonality
+
+A further extension of the double exponential smoothing where the k-step-ahead forecasts also takes into consideration the seasonality of the current period. While the trend is considered from the additive and multiplicative seasonality. 
+- This is specified as: $F_{t+k} = (L_t + kT_t)S_{t+k-M}$ where M denotes the number of seasons in a series (e.g., M = 12 for monthly seasonality). This is an adaptive method that allows the components (levels, trends, and seasonality) to change over time.
+
+
+\textcolor{red}{\textbf{Code: }}
+
+```{r, fig.align='center', fig.width=8, fig.height=6}
+# Validation Data
+nValid <- 24
+
+# Training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
+# multiplicative error with additive trend and additive seasonality model
+maa <- ets(train.ts, model = "MAA")
+
+# Forecasts
+maa.pred <- forecast(maa, h = nValid, level = 0)
+
+# plot training, validation, and forecasts
+plot(maa.pred, ylab = "Ridership", xlab = "Time", 
+     bty = "l", xaxt = "n",col = 'black', lwd =1.5,
+main = "Additive Trend and Additive Seasonality Model on Original 
+Data", flty = 2)
+
+# labels 
+axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
+
+# trained model
+lines(maa.pred$fitted, lwd = 1.2, col = "blue")
+
+# validation data
+lines(valid.ts, col = 'black', lwd = 1.2)
+
+
+```
+
+\newpage
+
+
+```{r, echo=FALSE}
+# estimates and parameters
+maa
+```
+
+
+
+\textcolor{red}{\textbf{Analysis: }}
+
+This approach uses Holt-Winter's method to build an additive trend and seasonality model with multiplicative error on the original data without a second order difference. This falls under the ets framework using the "MAA" model. However, what if the choice was to use an multiplicative trend and seasonality model, and so forth. There is an automated approach for model selection.
+
+
+\newpage
+
+### Automated Exponential Model Sections
+
+By leaving out the model parameter inside the ets function, this will fit several different models and choose the best one based on the lowest AIC score. 
+
+\textcolor{red}{\textbf{Code: }}
+
+
+```{r}
+#automated selection - optimal model
+optimal <- ets(train.ts, restrict = FALSE, allow.multiplicative.trend = TRUE)
+optimal
+```
+
+\newpage
+
+```{r, echo = FALSE, fig.align='center', fig.height=6, fig.width=8}
+# Optimal Forecasts
+op.pred <- forecast(optimal, h = nValid, level = 0)
+
+# plot training, validation, and forecasts
+plot(op.pred, ylab = "Ridership", xlab = "Time", 
+     bty = "l", xaxt = "n",col = 'black', lwd =1.5,
+main = "ANM Model on Original 
+Data", flty = 2)
+
+# labels 
+axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
+
+# trained model
+lines(op.pred$fitted, lwd = 1.2, col = "blue")
+
+# validation data
+lines(valid.ts, col = 'black', lwd = 1.2)
+```
+
+
+\textcolor{red}{\textbf{Analysis: }}
+
+The optimal model chosen was a additive error, no trend, and multiplicative seasonality with an improved AIC score of 6794.61 which was lower than the previous ANN model with an AIC of 6821.92
+
+\newpage
+
+## Regression-Based Models
