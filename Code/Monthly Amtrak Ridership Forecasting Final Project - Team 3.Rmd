@@ -178,7 +178,7 @@ last.ma <- tail(ma.trailing, 1)
 ma.trailing.pred <- ts(rep(last.ma, nValid), start = c(1991, nTrain + 1),
 end = c(1991, nTrain + nValid), freq = 12)
 
-# plot 
+# plot training data
 plot(train.ts, ylim = c(1300000, 2800000), ylab = "Ridership", 
      xlab = "Time", bty="l", xaxt = "n", col = 'grey41',
 xlim = c(1991,2013.50), main = "Forecasting with Trailing Moving Average")
@@ -186,14 +186,19 @@ xlim = c(1991,2013.50), main = "Forecasting with Trailing Moving Average")
 # labels
 axis(1, at = seq(1991, 2013.50, 1), labels = format(seq(1991, 2013.50, 1)))
 
-# training data 
+# training model
 lines(ma.trailing, lwd = 2, col = "blue")
 
 # validation data
-lines(valid.ts, col = 'blue')
+lines(valid.ts, col = 'grey41')
 
-# predictions
+# predictions on validation
 lines(ma.trailing.pred, lwd = 2, col = "blue", lty = 2)
+
+# legend
+legend(1991,2800000, c("Original Ridership","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("grey41", 'blue', 'blue'))
 
 ```
 
@@ -278,7 +283,7 @@ plot(diff(df), xlab = "Year", ylab = "Lag-1",
 
 # Double Differencing 
 plot(diff(diff(df, s = 12)), xlab = "Year", ylab = "Lag-12, then Lag-1", 
-     main = "Twice-DIfferenced (Lag-12, Lag-1)", col = 1)
+     main = "Twice-Differenced (Lag-12, Lag-1)", col = 1)
 
 ```
 
@@ -326,19 +331,24 @@ ses <- ets(train.ts, model = "ANN", alpha = 0.2)
 # make predictions using model
 ses.pred <- forecast(ses, h = nValid, level = 0)
 
-# plot predictions
+# training data then validation forecasts
 plot(ses.pred, ylab = "Ridership (Twice-Differenced)", xlab = "Time",
 bty = "l", xaxt = "n", xlim = c(1991,2013.50), main = "Simple Exponential Smoother on 
-Double Differenced Data", flty = 2)
+Double Differenced Data", flty = 2, lwd =1.8)
 
 # labels
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
-# validaiton data
-lines(valid.ts, col = "blue")
-
-# model from training and validation data
+# training model - predictions
 lines(ses.pred$fitted, lwd = 2, col = "blue")
+
+# validaiton data
+lines(valid.ts, lwd = 1, col = "black")
+
+# legend
+legend(1994,230000, c("Original Ridership","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
 ```
 
 
@@ -348,7 +358,7 @@ lines(ses.pred$fitted, lwd = 2, col = "blue")
 For forecasting with simple exponential smoothing, the data trained on was the double-difference ridership data that contains no seasonality or trend. Then we fit the simple exponential smoothing model to the training data set with $\alpha = 0.2$ as default.
 This smoothing model is under the _ets_ framework using the model with additive (A), no trend (N), and no seasonality (N), denoted as "ANN". The forecasts for the validation set for each month remained as the same value similar to the moving average forecast model. This would mean that the simple exponential forecaster or ANN model is also inadequate for the monthly forecasting task. The reason why is because it also does not capture the seasonality in the data.
 
-- Since both moving average and simple exponential smoothing models should only be used for forecasting a time series without trend or seasonality, one solution attempted with these models were de-trending or de-seasonalizing the data. 
+- The simple exponential smoothing models did a poor job at forecasting this time series without trend or seasonality.
 - Another solution is to use a more complex and sophisticated exponential smoothing that is able to model data with both trend and seasonality.
 
 
@@ -378,13 +388,16 @@ A further extension of the double exponential smoothing where the k-step-ahead f
 - This is specified as: $F_{t+k} = (L_t + kT_t)S_{t+k-M}$ where M denotes the number of seasons in a series (e.g., M = 12 for monthly seasonality). This is an adaptive method that allows the components (levels, trends, and seasonality) to change over time.
 
 
+In this case we would make **June 2012 to May 2013** the validation period.
+
+
 \textcolor{red}{\textbf{Code: }}
 
-```{r, fig.align='center', fig.width=8, fig.height=6}
+```{r, fig.align='center', fig.width=10, fig.height=6}
 # Validation Data
-nValid <- 24
+nValid <- 12
 
-# Training data
+# number of training data
 nTrain <- length(df) - nValid
 
 # time window for training data
@@ -399,20 +412,24 @@ maa <- ets(train.ts, model = "MAA")
 # Forecasts
 maa.pred <- forecast(maa, h = nValid, level = 0)
 
-# plot training, validation, and forecasts
-plot(maa.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n",col = 'black', lwd =1.5,
+# training data and validation data - forecasts
+plot(maa.pred, ylab = "Ridership", xlab = "Time",  lwd =1.2,
 main = "Additive Trend and Additive Seasonality Model on Original 
-Data", flty = 2)
+Data", flty = 2, bty="l", xaxt = "n")
 
 # labels 
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
-# trained model
+# training data - forecasts
 lines(maa.pred$fitted, lwd = 1.2, col = "blue")
 
-# validation data
-lines(valid.ts, col = 'black', lwd = 1.2)
+# validation data only
+lines(valid.ts, lwd = 1.2, col = 'black')
+
+# legend
+legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
 
 
 ```
@@ -429,7 +446,7 @@ maa
 
 \textcolor{red}{\textbf{Analysis: }}
 
-This approach uses Holt-Winter's method to build an additive trend and seasonality model with multiplicative error on the original data without a second order difference. This falls under the ets framework using the "MAA" model. However, what if the choice was to use an multiplicative trend and seasonality model, and so forth. There is an automated approach for model selection.
+This approach uses Holt-Winter's method to build an additive trend and seasonality model with multiplicative error on the original data without a second order difference. This falls under the ets framework using the "MAA" model. However, what if the choice was to use an multiplicative trend and seasonality model, and so forth. There is an automated approach for model selection. In this case we would make **June 2012 to May 2013** the validation period.
 
 
 \newpage
@@ -441,39 +458,129 @@ By leaving out the model parameter inside the ets function, this will fit severa
 \textcolor{red}{\textbf{Code: }}
 
 
-```{r}
+```{r, fig.align='center', fig.height=6, fig.width=10}
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
 #automated selection - optimal model
 optimal <- ets(train.ts, restrict = FALSE, allow.multiplicative.trend = TRUE)
 optimal
-```
 
-\newpage
-
-```{r, echo = FALSE, fig.align='center', fig.height=6, fig.width=8}
 # Optimal Forecasts
 op.pred <- forecast(optimal, h = nValid, level = 0)
 
-# plot training, validation, and forecasts
+# training data - then validation forecasts
 plot(op.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n",col = 'black', lwd =1.5,
+     bty = "l", xaxt = "n", lwd =1.5,
 main = "ANM Model on Original 
 Data", flty = 2)
 
 # labels 
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
-# trained model
-lines(op.pred$fitted, lwd = 1.2, col = "blue")
+# training data - forecasts
+lines(op.pred$fitted, lwd = 1.5, col = "blue")
 
-# validation data
-lines(valid.ts, col = 'black', lwd = 1.2)
+# validation data 
+lines(valid.ts, col = 'black', lwd = 1.5)
+
+# legend
+legend(1991,2800000, c("Original Ridership","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
+
 ```
 
 
 \textcolor{red}{\textbf{Analysis: }}
 
-The optimal model chosen was a additive error, no trend, and multiplicative seasonality with an improved AIC score of 6794.61 which was lower than the previous ANN model with an AIC of 6821.92
+The optimal model chosen was a multiplicative error, additive trend, and multiplicative seasonality with an improved AIC score of 7155.16 which was lower than the previous ANN model with an AIC of 7181.09
 
 \newpage
 
+
 ## Regression-Based Models
+
+There are different types of common trends and seasonality that can be modeled by regression-based models estimated during the training period and used to forecast on future data. Such trends include linear, exponential, or polynomial, while the different seasonality are additive and multiplicative seasons.
+
+- Linear trends = a series is increasing/decreasing linearly over time
+- Quadratic/polynomials functions = These are used to capture the more complex trends.
+
+
+
+### Linear Trend 
+
+
+We can start with creating a linear regression model using a predictor index by time and the output, y, which is the number of ridership each month. Keep in mind that a linear regression model will capture the global linear trend in a time series.
+
+However, before we move on we will need to partition the series into training and validation periods. In this case we would make **June 2012 to May 2013** the validation period. This will allow us to keep 12 months in the validation set to provide monthly forecasts for the following year and evaluate each forecasts individually from their respective years. 
+
+
+\textcolor{red}{\textbf{Code: }}
+
+
+
+```{r, fig.align='center', fig.width=10, fig.height=6}
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
+# trend of data
+trend <- time(df)
+
+# linear regression model
+train.lm <- tslm(train.ts ~ trend)
+
+# validation forecasts
+train.lm.pred <- forecast(train.lm, h = nValid, level = 0)
+train.lm
+
+# Plot training data along with validation forecasts
+plot(train.lm.pred, ylab = "Ridership", xlab = "Time", 
+     bty = "l", xaxt = "n", main = "Linear Regression Trend Model", flty = 2)
+
+# labels
+axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
+
+# validation data
+lines(valid.ts)
+
+# training model forecasts
+lines(train.lm.pred$fitted, lwd = 2, col = "darkslategray2")
+
+# legend
+legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'dodgerblue4'))
+
+summary(train.lm)
+
+```
+
+\textcolor{red}{\textbf{Analysis: }}
+
+This linear trend does not fit the global trend at all. The global trend in fact is not linear. This is why we will consider other models for this series. Also the reason why this linear trend model performed poorly is because we did not model seasonality.
+
+
+### Model with Trend and Seasonality
+
+
+
+
