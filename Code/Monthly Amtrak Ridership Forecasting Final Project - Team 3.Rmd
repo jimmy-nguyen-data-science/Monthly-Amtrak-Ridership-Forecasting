@@ -334,21 +334,21 @@ ses.pred <- forecast(ses, h = nValid, level = 0)
 # training data then validation forecasts
 plot(ses.pred, ylab = "Ridership (Twice-Differenced)", xlab = "Time",
 bty = "l", xaxt = "n", xlim = c(1991,2013.50), main = "Simple Exponential Smoother on 
-Double Differenced Data", flty = 2, lwd =1.8)
+Double Differenced Data", flty = 2)
 
 # labels
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
 # training model - predictions
-lines(ses.pred$fitted, lwd = 2, col = "blue")
+lines(ses.pred$fitted, lwd = 2, col = "darkslategray2")
 
 # validaiton data
-lines(valid.ts, lwd = 1, col = "black")
+lines(valid.ts)
 
 # legend
 legend(1994,230000, c("Original Ridership","Training Predictions", 
                        "Validation Predictions"), lty=c(1,1,2),
-lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
+lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'blue'))
 ```
 
 
@@ -413,7 +413,7 @@ maa <- ets(train.ts, model = "MAA")
 maa.pred <- forecast(maa, h = nValid, level = 0)
 
 # training data and validation data - forecasts
-plot(maa.pred, ylab = "Ridership", xlab = "Time",  lwd =1.2,
+plot(maa.pred, ylab = "Ridership", xlab = "Time", 
 main = "Additive Trend and Additive Seasonality Model on Original 
 Data", flty = 2, bty="l", xaxt = "n")
 
@@ -421,15 +421,15 @@ Data", flty = 2, bty="l", xaxt = "n")
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
 # training data - forecasts
-lines(maa.pred$fitted, lwd = 1.2, col = "blue")
+lines(maa.pred$fitted, lwd = 2, col = "darkslategray2")
 
 # validation data only
-lines(valid.ts, lwd = 1.2, col = 'black')
+lines(valid.ts)
 
 # legend
 legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
                        "Validation Predictions"), lty=c(1,1,2),
-lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
+lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'blue'))
 
 
 ```
@@ -480,23 +480,22 @@ op.pred <- forecast(optimal, h = nValid, level = 0)
 
 # training data - then validation forecasts
 plot(op.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n", lwd =1.5,
-main = "ANM Model on Original 
-Data", flty = 2)
+     bty = "l", xaxt = "n", lwd =2,
+main = "Optimal Model from Automated Model Selections", flty = 2)
 
 # labels 
 axis(1, at = seq(1991, 2013, 1), labels = format(seq(1991, 2013, 1)))
 
 # training data - forecasts
-lines(op.pred$fitted, lwd = 1.5, col = "blue")
+lines(op.pred$fitted, lwd = 2, col = "darkslategray2")
 
 # validation data 
-lines(valid.ts, col = 'black', lwd = 1.5)
+lines(valid.ts)
 
 # legend
-legend(1991,2800000, c("Original Ridership","Training Predictions", 
+legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
                        "Validation Predictions"), lty=c(1,1,2),
-lwd=c(1,2,2), bty = "n", col = c("black", 'blue', 'blue'))
+lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'blue'))
 
 ```
 
@@ -548,13 +547,14 @@ trend <- time(df)
 # linear regression model
 train.lm <- tslm(train.ts ~ trend)
 
+
 # validation forecasts
 train.lm.pred <- forecast(train.lm, h = nValid, level = 0)
-train.lm
 
 # Plot training data along with validation forecasts
 plot(train.lm.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n", main = "Linear Regression Trend Model", flty = 2)
+     bty = "l", xaxt = "n", main = "Linear Regression
+     with Trend Model", flty = 2)
 
 # labels
 axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
@@ -571,6 +571,7 @@ legend(1991,2800000, c("Training and Validation Data","Training Predictions",
 lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'dodgerblue4'))
 
 summary(train.lm)
+print(paste0("AIC: ", round(AIC(train.lm),2)))
 
 ```
 
@@ -581,6 +582,126 @@ This linear trend does not fit the global trend at all. The global trend in fact
 
 ### Model with Trend and Seasonality
 
+We can model a series with both trend and seasonality by adding predictors of both types. For example, we can build a new model with both linear and quadratic trend. Then we can add a monthly seasonality which was a factor of 12, however it is redundant to use all 12. In this case, except season 1 which was January. In total, we will have 13 predictors, with $t and t^2$ for the trends and the 11 dummy variables for months.
 
+
+\textcolor{red}{\textbf{Code: }}
+
+```{r, fig.align='center', fig.height=6, fig.width=10}
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
+# trend of data
+trend <- time(df)
+
+# seasonality
+season <- factor(cycle(df))
+
+model.lm <- tslm(train.ts ~ trend + I(trend^2) +  season)
+model.lm
+
+# validation forecasts
+model.lm.pred <- forecast(model.lm, h = nValid, level = 0)
+
+# Plot training data along with validation forecasts
+plot(model.lm.pred, ylab = "Ridership", xlab = "Time", 
+     bty = "l", xaxt = "n", flty = 2,
+     main = "Linear Regression with
+     Linear Trend, Quadratic Trend, and Seasonality Model")
+
+# labels
+axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
+
+# validation data
+lines(valid.ts)
+
+# training model forecasts
+lines(model.lm.pred$fitted, lwd = 2, col = "darkslategray2")
+
+# legend
+legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
+                       "Validation Predictions"), lty=c(1,1,2),
+lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'dodgerblue4'))
+
+# summary of model
+summary(model.lm)
+print(paste0("AIC: ", round(AIC(model.lm),2)))
+
+accuracy(model.lm.pred, valid.ts)
+
+```
+
+
+
+
+\textcolor{red}{\textbf{Analysis: }}
+
+
+The AIC score has dropped significantly compared to the model with only linear trend. In comparison with the exponential smoothing model, this score has dropped drastically, making the linear, quadratic, and monthly seasonality model the best.
+
+
+\newpage
+
+### Naive Forecasts
+
+Instead of sophisticated modeling, naive forecasts are basically the most recent values of the ridership data. While a seasonal naive forecast is from the recent value from the most identical season. For example, if we are forecasting August 2012, the forecasts for this month would be the value from August 2011 instead.
+
+Ironically, naive forecasts are actually good at achieving great performance even though its easy to understand and deploy. Also, this naive model should be used as a baseline to compare other model's predictive performance against.
+
+
+
+\textcolor{red}{\textbf{Code: }}
+
+
+
+```{r, fig.align='center', fig.width=10, fig.height=6}
+# Seasonality naive forecasts
+snaive.pred <- snaive(train.ts, h = nValid)
+
+# Plot training data along with validation forecasts
+plot(snaive.pred, ylab = "Ridership", xlab = "Time", 
+     bty = "l", xaxt = "n", flty = 2,
+     main = "Seasonality Naive Model")
+
+# labels
+axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
+```
+
+\newpage
+
+
+## Results
+
+
+
+```{r, echo=FALSE}
+
+# Optimal Exponential Model
+op.df <- as.data.frame(accuracy(op.pred, valid.ts))
+op.df[,1:6] %>% 
+  pander(style = "grid", caption = "Optimal Exponential Model")
+
+
+
+# Regression with Linear and Quadratic Trends, and Seasonality
+model.lm.df <- as.data.frame(accuracy(model.lm.pred, valid.ts))
+model.lm.df[,1:6] %>% 
+  pander(style = "grid", caption = "Regression with Linear and Quadratic Trends, and Seasonality Model")
+
+
+# Seasonality naive forecasts
+snaive.df <- as.data.frame(accuracy(snaive.pred, valid.ts))
+snaive.df[,1:6] %>%  
+  pander(style = "grid", caption = "Seasonality Naive Model")
+```
 
 
