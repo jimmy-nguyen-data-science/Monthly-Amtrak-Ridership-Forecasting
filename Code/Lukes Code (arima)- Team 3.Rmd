@@ -1,16 +1,19 @@
 ---
-title: "Appendix A - Monthly Amtrak Ridership Forecasting Final Project"
-author: "Team 3: Jimmy Nguyen, Luke Awino"
+title: 'ADS 506: Monthly Amtrak Ridership Forecasting Final Project'
+author: 'Team 3: Jimmy Nguyen, Luke Awino'
 date: "12/04/2021"
-output: 
-  pdf_document:
-    latex_engine: xelatex
+output:
+  word_document:
     toc: yes
-    toc_depth: 5
+    toc_depth: '5'
   html_document:
     toc: yes
     toc_depth: '5'
     df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: 5
 ---
 
 
@@ -88,34 +91,6 @@ plot(df, xlab = "Year", ylab = "Number of Passengers",
 ```
 
 
-\textcolor{red}{\textbf{Analysis: }}
-
-
-During exploratory data analysis, we were able to see that the trend of the data changed over time.  It had signs of seasonality, showing it was not stationary.
-
-
-
-## ACF and PCF 
-
-Let's take a look at the auto-correlation and partial-correlation graphs for this time series data.
-
-\textcolor{red}{\textbf{Code: }}
-
-
-
-```{r, fig.width=10, fig.height=7}
-#Inspect ACF and PACF
-acf_pcf <-acf2(df)
-acf_pcf
-```
-
-
-\textcolor{red}{\textbf{Analysis: }}
-
-The autocorrelation function shows high lag coefficients starting at lag 1, indicating seasonality.
-
-
-
 \newpage
 
 # Data Pre-processing
@@ -183,11 +158,11 @@ Therefore, trailing moving averages is the better approach here where the window
 
 
 
-```{r, fig.align='center', fig.width=10, fig.height=7}
+```{r, fig.align='center', fig.width=8, fig.height=6}
 # Validation Data
-nValid <- 12
+nValid <- 36
 
-# number of training data
+# Training data
 nTrain <- length(df) - nValid
 
 # time window for training data
@@ -267,32 +242,7 @@ adf.test(df)
 
 This may be a biased Dickey-Fuller test where we have a type 1 error. There is definitely visible seasonality happening in the data.  
 Since the test rejects the null hypothesis that the series is non-stationary, in this case the series was actually non-stationary. Therefore, we will ignore that it ever happened because we will need to perform a second order difference due to a trend and seasonality pattern in the series.
-
 -  Alternative approaches without differencing can be aggregating the monthly data into a coarser level such as yearly ridership as the total sum instead.
-
-
-
-### Other tests for Stationarity
-
-
-Once again, we can visually inspect the data by decomposing it into different time series components, such as the seasonality and trend.
-
-
-\textcolor{red}{\textbf{Code: }}
-
-
-```{r}
-# decompose the components of the data set
-d1 <-decompose(df, type = c("additive","multiplicative"))
-plot(d1)
-```
-
-
-
-\textcolor{red}{\textbf{Analysis: }}
-
-There is a strong seasonal component in the data set, there is a consistent upward trend in the dataset.
-
 
 
 ## Detrending 
@@ -533,7 +483,7 @@ op.pred <- forecast(optimal, h = nValid, level = 0)
 
 # training data - then validation forecasts
 plot(op.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n",
+     bty = "l", xaxt = "n", lwd =2,
 main = "Optimal Model from Automated Model Selections", flty = 2)
 
 # labels 
@@ -659,7 +609,6 @@ trend <- time(df)
 # seasonality
 season <- factor(cycle(df))
 
-# linear model with linear trend, quadratic trend and seasonality
 model.lm <- tslm(train.ts ~ trend + I(trend^2) +  season)
 model.lm
 
@@ -703,120 +652,6 @@ accuracy(model.lm.pred, valid.ts)
 The AIC score has dropped significantly compared to the model with only linear trend. In comparison with the exponential smoothing model, this score has dropped drastically, making the linear, quadratic, and monthly seasonality model the best.
 
 
-
-
-\newpage
-
-
-### AR1 Model
-
-The following is an Auto-regression model 
-
-\textcolor{red}{\textbf{Code: }}
-
-
-```{r fig.align='center', fig.width=10, fig.height=7}
-# Validation Data
-nValid <- 12
-
-# number of training data
-nTrain <- length(df) - nValid
-
-# time window for training data
-train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
-
-# time window for validation data
-valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
-
-#create basic AR model
-ar1 = arima(train.ts, order=c(1,0,0))
-ar1
-
-#forecast ar1 model
-ar1.pred <- forecast(ar1, h = nValid)
-
-# Plot training data along with validation forecasts
-plot(ar1.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n", flty = 2,
-     main = "AR1 Model")
-
-# labels
-axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
-
-# validation data
-lines(valid.ts)
-
-# training model forecasts
-lines(ar1.pred$fitted, lwd = 2, col = "darkslategray2")
-
-# legend
-legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
-                       "Validation Predictions"), lty=c(1,1,2),
-lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'dodgerblue4'))
-
-#summary
-summary(ar1)
-```
-
-\newpage
-
-
-
-### Autoselection for Optimal ARIMA Parameters
-
-We used the auto-arima function to get the best parameters for an optimal ARIMA model
-
-
-\textcolor{red}{\textbf{Code: }}
-
-
-```{r, fig.align='center', fig.width=10, fig.height=7}
-#auto arima
-# Validation Data
-nValid <- 12
-
-# number of training data
-nTrain <- length(df) - nValid
-
-# time window for training data
-train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
-
-# time window for validation data
-valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
-
-# autoselection for optimal arima parameters
-autoarima <- auto.arima(train.ts)
-
-#forecast ar1 model
-autoarima.pred <- forecast(autoarima, h = nValid)
-
-# Plot training data along with validation forecasts
-plot(autoarima.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n", flty = 2,
-     main = "Optimal ARIMA Model")
-
-# labels
-axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
-
-# validation data
-lines(valid.ts)
-
-# training model forecasts
-lines(autoarima.pred$fitted, lwd = 2, col = "darkslategray2")
-
-# legend
-legend(1991,2800000, c("Training and Validation Data","Training Predictions", 
-                       "Validation Predictions"), lty=c(1,1,2),
-lwd=c(1,2,2), bty = "n", col = c("black", 'darkslategray2', 'dodgerblue4'))
-
-#summary
-summary(autoarima)
-
-```
-
-
-
-
 \newpage
 
 ### Naive Forecasts
@@ -844,109 +679,174 @@ plot(snaive.pred, ylab = "Ridership", xlab = "Time",
 axis(1, at = seq(1991, 2013.9, 1), labels = format(seq(1991, 2013.9, 1)))
 ```
 
-
-
 \newpage
 
 
-# Results and Model Selection
+## Results
 
-
-\textcolor{red}{\textbf{Code: }}
 
 
 ```{r, echo=FALSE}
+
 # Optimal Exponential Model
 op.df <- as.data.frame(accuracy(op.pred, valid.ts))
 op.df[,1:6] %>% 
   pander(style = "grid", caption = "Optimal Exponential Model")
 
+
 # Regression with Linear and Quadratic Trends, and Seasonality
 model.lm.df <- as.data.frame(accuracy(model.lm.pred, valid.ts))
 model.lm.df[,1:6] %>% 
-  pander(style = "grid", caption = "Regression with Monthly Seasonality and Linear and Quadratic Trends Model")
+  pander(style = "grid", caption = "Regression with Linear and Quadratic Trends, and Seasonality Model")
 
-#AR1 Model
-ar1.df <- as.data.frame(accuracy(ar1.pred, valid.ts))
-ar1.df[,1:6] %>% 
-  pander(style = "grid", caption = "AR1 Model")
-
-
-# Optimal ARIMA Model
-autoarima.df <- as.data.frame(accuracy(autoarima.pred, valid.ts))
-autoarima.df[,1:6] %>% 
-  pander(style = "grid", caption = "Optimal ARIMA Model")
 
 # Seasonality naive forecasts
 snaive.df <- as.data.frame(accuracy(snaive.pred, valid.ts))
 snaive.df[,1:6] %>%  
-  pander(style = "grid", caption = "Seasonal Naive Model")
-```
-
-\newpage
-
-
-\textcolor{red}{\textbf{Analysis: }}
-
-
-The key performance metric is RMSE in the test set. Since this metric is on the same scale as the observed data values. For the seasonal naive model, its RMSE score will serve as the baseline performance to beat, meaning if any model has a lower RMSE value in the test set. 
-
-- Seasonal Naive Model - test set's RMSE: 91,056 
-
-- Optimal exponential model - test set’s RMSE score: 61,488. 
-
-- Regression-based model - test set's RMSE score: 100,061
-
-- AR1 Model - test's RMSE score: 388,025 
-
-- Optimal ARIMA Model - test's RMSE score: 107,742
-
-
-The final model selected to forecast the months of June to August of 2013 will be the optimal exponential model with the lowest RMSE score of 61,488 on the test set.
-
-
-
-
-
-# Conclusion
-
-
-\textcolor{red}{\textbf{Code: }}
-
-
-```{r, fig.align='center', fig.width=10, fig.height=7}
-
-# the final model selected was the optimal exponential model
-final_model <- optimal
-
-#forecasts for June to August 2013 (3 months ahead)
-final.pred <- forecast(final_model, h = nValid + 3)
-
-# plot of predictions
-plot(final.pred, ylab = "Ridership", xlab = "Time", 
-     bty = "l", xaxt = "n", flty = 2,
-     main = "Final Model with Forecasts on Future Data")
-
-# labels
-axis(1, at = seq(1991, 2014, 1), labels = format(seq(1991, 2014, 1)))
+  pander(style = "grid", caption = "Seasonality Naive Model")
 ```
 
 
-\textcolor{red}{\textbf{June to August 2013 Forecasts: }}
+```{r}
+#Inspect ACF and PACF
+as <-acf2(df)
 
+```
+the acf shows high lag coefficients starting ar lag 1 indicating seasonality.
 
-```{r, echo=FALSE}
-
-# final forecasts for June to August 2013
-final_forecasts<- as.data.frame(final.pred)[13:15,]
-
-
-final_forecasts %>%  
-  pander(style = "grid", 
-         caption = "June to August 2013 - Ridership Forecasts")
+```{r, fig.align='center', fig.height=6, fig.width=9}
+# decompose the components of the dataset
+d1 <-decompose(df, type = c("additive","multiplicative"))
+plot(d1)
 
 
 ```
+there is a strong seasonal component in the data set, there is a consistent upward trend in the dataset.
+
+```{r fig.align='center', fig.width=10, fig.height=7}
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
+#create basic AR model
+ar1 = arima(train.ts, order=c(1,0,0))
+ar1
+
+#forecast ar1 model
+ar1.pred <- forecast(ar1, h = nValid)
+
+#plot the model
+autoplot(ar1.pred, lwd =3)
+
+#create table with results
+ar1.df <- as.data.frame(accuracy(ar1.pred, valid.ts))
+ar1.df[,1:6] %>% 
+  pander(style = "grid", caption = "AR1  Model")
+```
+
+plot a logged version of the ar model
+
+```{r}
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+train.ts.log <- log(train.ts)
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+valid.ts.log <- log(valid.ts)
+
+#plot logged ar model
+arima1 <- arima(train.ts.log, order = c(0,1,1), seasonal = c(0,1,1))
+
+#forecast arima model
+arima1.pred <- forecast(arima1, h = nValid)
+
+#plot the model
+autoplot(arima1.pred, lwd =3)
+
+#summary of the model
+summary(arima1)
+
+#arima model
+arima.df <- as.data.frame(accuracy(arima1))
+arima.df[,1:6] %>% 
+  pander(style = "grid", caption = "Arima Model")
+
+
+```
+
+we used the auto arima function to get the best parameters for fitting the dataset
+```{r fig.align='center', fig.width=10, fig.height=6}
+#auto arima
+# Validation Data
+nValid <- 12
+
+# number of training data
+nTrain <- length(df) - nValid
+
+# time window for training data
+train.ts <- window(df, start = c(1991, 1), end = c(1991, nTrain))
+
+# time window for validation data
+valid.ts <- window(df, start = c(1991, nTrain + 1), end = c(1991, nTrain + nValid))
+
+autoarima <- auto.arima(train.ts)
+autoarima
+
+```
+the auto arima suggested ARIMA(2,1,1)(2,1,1)[12] 
+
+
+
+```{r fig.align='center', fig.width=10, fig.height=6}
+arima.for <- forecast(autoarima, 16)
+arima.for
+
+a1<-accuracy(arima.for, valid.ts)
+
+plot(arima.for, lwd = 2)
+
+autoar.df <- as.data.frame(accuracy(arima.for, valid.ts))
+autoar.df[,1:6] %>% 
+  pander(style = "grid", caption = "Auto ARIMA  Model")
+```
+
+
+
+```{r fig.align='center', fig.width=10, fig.height=6}
+
+#plot different sarima models
+library(sarima)
+s1<-sarima.for(df, 3, 1,1,1, 0,1,1,12)
+s2<-sarima.for(df, 3, 0,0,1, 0,0,1,12)
+s3<-sarima.for(df, 3, 1,0,0, 0,0,1,12)
+s4<-sarima.for(df, 3, 0,0,0, 0,0,1,12)
+s5<-sarima.for(df, 3, 1,0,0, 0,0,2,12)
+s6<-sarima.for(df, 3, 2,1,1, 2,1,1,12)
+
+```
+
+
+
+
+
+
+
+
 
 
 
