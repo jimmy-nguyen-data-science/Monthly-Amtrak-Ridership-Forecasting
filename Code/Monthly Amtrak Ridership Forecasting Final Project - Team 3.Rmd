@@ -88,6 +88,13 @@ plot(df, xlab = "Year", ylab = "Number of Passengers",
 ```
 
 
+\textcolor{red}{\textbf{Analysis: }}
+
+
+During exploratory data analysis, we were able to see that the trend of the data changed over time.  It had signs of seasonality, showing it was not stationary.
+
+
+
 \newpage
 
 # Data Pre-processing
@@ -155,11 +162,11 @@ Therefore, trailing moving averages is the better approach here where the window
 
 
 
-```{r, fig.align='center', fig.width=8, fig.height=6}
+```{r, fig.align='center', fig.width=10, fig.height=7}
 # Validation Data
-nValid <- 36
+nValid <- 12
 
-# Training data
+# number of training data
 nTrain <- length(df) - nValid
 
 # time window for training data
@@ -239,6 +246,7 @@ adf.test(df)
 
 This may be a biased Dickey-Fuller test where we have a type 1 error. There is definitely visible seasonality happening in the data.  
 Since the test rejects the null hypothesis that the series is non-stationary, in this case the series was actually non-stationary. Therefore, we will ignore that it ever happened because we will need to perform a second order difference due to a trend and seasonality pattern in the series.
+
 -  Alternative approaches without differencing can be aggregating the monthly data into a coarser level such as yearly ridership as the total sum instead.
 
 
