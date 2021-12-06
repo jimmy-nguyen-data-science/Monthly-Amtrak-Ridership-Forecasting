@@ -28,7 +28,7 @@
 # Collaborators
 - [Jimmy Nguyen](https://github.com/Jimmy-Nguyen-Data-Science-Portfolio)
 - [Luke Awino](https://github.com/Lukematic)
-- [Aubrey Barrett]() 
+
 
 
 # Installation
