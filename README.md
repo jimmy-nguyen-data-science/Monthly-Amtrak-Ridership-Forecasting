@@ -91,7 +91,7 @@ being monthly each year.
 Forecasting with time-series data also requires the appropriate partitioning to evaluate the performance of the models. There will be a training set, a validation set, and a test set similar to cross-sectional. Although partitioning data into these sets are usually done randomly, this is not the case for a time series. The first step is to decide the different training and validation periods. Meaning, the time window will need to be specified before partitioning into different sets. The training set consists of the earlier periods, while the validation set is the periods the model has not yet been trained on. This will be the later period. For the test period, this partitioning set will be the forecasted months the client has requested. Thus, the data splitting strategy for the Amtrak ridership data will be a fixed-partitioning method. The training period will be from January 1991 to May 2012. The validation period will be from June 2012 to May 2013. While the test period Amtrak requested is from June 2013 to August 2013.
 
 
-# Model Stratgies 
+# Model Strategies 
 
 - Simple exponential smoothing
 - Models with additive or multiplicative trends
