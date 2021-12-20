@@ -6,18 +6,18 @@
 
 - [Collaborators](#collaborators)
 - [Installation](#installation)
+- [Technologies](#technologies)
 - [About the Project](#about-the-project)
-  * [Short Description of Your Project and Objectives:](#short-description-of-your-project-and-objectives)
-  * [Background](#background)
-  * [Main Research Questions](#main-research-questions)
-- [Methodology](#methodology)
-- [Analytics Methods](#analytics-methods)
-  * [The following models are selected:](#the-following-models-are-selected)
-  * [Model Training and Evaluating Performance](#model-training-and-evaluating-performance)
-  * [Technologies](#technologies)
-- [Original Data](#original-data)
+  * [Problem Statement](#problem-statement)
+  * [Justification](#justification)
+- [Data Exploration](#data-exploration)
+  * [Original Data](#original-data)
   * [Data Set Dictionary](#data-set-dictionary)
+- [Data Preprocessing](#data-preprocessing)
+- [Data Splitting](#data-splitting)
+- [Model Strategies](#model-strategies)
 - [Presentations and Reports](#presentations-and-reports)
+- [Code](#code)
 - [Data Visualizations](#data-visualizations)
 - [Performance Results](#performance-results)
 - [Conclusion](#conclusion)
@@ -64,7 +64,7 @@ The purpose of this project is to forecast Amtrak ridership. With this informati
 The data set was obtained from the Bureau of Transportation Statistics, which includes monthly Amtrak ridership data from January 1991 until May 2013. There are 269 rows with only two columns containing the timestamp of each month in that respective year and the total counts of ridership. A time-series trend was visible during the exploratory data analysis over the years. This series also shows signs of seasonality where this may be hypothesized as non-stationary
 
 
-# Original Data 
+## Original Data 
 
 [Amtrak Ridership](https://www.bts.gov/archive/publications/multimodal_transportation_indicators/2013_08/passenger/amtrak_ridership)
 
@@ -74,7 +74,7 @@ The data set was obtained from the Bureau of Transportation Statistics, which in
 - Number of Passengers: How many passengers were riding during that month of that year. 
 
 
-# Data Pre-processing
+# Data Preprocessing
 
 The first steps were renamed to the original columns of the data set to Dates and
 Number_of_Passengers. Then the data was converted to a time series object to allow for further
