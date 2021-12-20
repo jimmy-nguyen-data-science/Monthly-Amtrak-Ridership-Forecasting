@@ -115,7 +115,7 @@ Forecasting with time-series data also requires the appropriate partitioning to 
 ![Optimal Exponential Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Models%20with%20Additive%20or%20multiplicative%20trends.png)
 ![AR1 Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/ar1%20model.png)
 ![ARIMA Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/optimal%20arima%20model.png)
-![Seasonal Naive Model][https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/seasonality%20naive%20model.png)
+![Seasonal Naive Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/seasonality%20naive%20model.png)
 
 # Performance Results
 ![Performance Results](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Final%20Results.PNG)
