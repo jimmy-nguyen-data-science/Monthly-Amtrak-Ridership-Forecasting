@@ -25,8 +25,8 @@
 
 -------
 
-# Collaborators
-- [Jimmy Nguyen](https://github.com/Jimmy-Nguyen-Data-Science-Portfolio)
+## Authors and Collaborators
+- [Jimmy Nguyen](https://github.com/jimmy-nguyen-data-science)
 - [Luke Awino](https://github.com/Lukematic)
 
 
