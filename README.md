@@ -114,7 +114,7 @@ Forecasting with time-series data also requires the appropriate partitioning to 
 
 
 # Performance Results
-![]()
+![Performance Results](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Final%20Results.PNG)
 
 Based on the results, there are a handful of different performance metrics to evaluate across the models. The following models are competing against each other: the seasonal naive forecast model, the optimal exponential model, and the regression model with a monthly seasonality and linear and quadratic trends, and the ARIMA models. The selected performance metric is the root mean square error (RMSE). Lower values of the RMSE indicate a model with higher performance. A benefit of using this performance metric over the others is that the RMSE will be in the same units as the original data. Previously, the AIC scores were used for comparison for only a quick evaluation of the training set to see the complexity of each model. Since the task is forecasting future values, using the RMSE score from the test set is more appropriate. The following tables in Table 1 display the different performance metrics of the previously stated models.
 
