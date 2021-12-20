@@ -93,8 +93,6 @@ Forecasting with time-series data also requires the appropriate partitioning to 
 
 # Model Strategies 
 
-- Simple exponential smoothing
-- Models with additive or multiplicative trends
 - Automated model selection for optimal exponential model
 - Regression-based models
 - AR1 Model
