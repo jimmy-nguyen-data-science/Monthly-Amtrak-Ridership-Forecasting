@@ -4,7 +4,7 @@
 
 --------
 
-- [Collaborators](#collaborators)
+- [Authors and Collaborators](#authors-and-collaborators)
 - [Installation](#installation)
 - [Technologies](#technologies)
 - [About the Project](#about-the-project)
@@ -25,7 +25,7 @@
 
 -------
 
-## Authors and Collaborators
+# Authors and Collaborators
 - [Jimmy Nguyen](https://github.com/jimmy-nguyen-data-science)
 - [Luke Awino](https://github.com/Lukematic)
 
