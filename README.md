@@ -118,7 +118,7 @@ Based on the results, there are a handful of different performance metrics to ev
 
 
 # Conclusion
-![]()
+![Final Forecasts](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/final%20forecasts.PNG)
 
 The final model was used to make forecasts for the month of June to August of 2013. June of 2013 is forecasted to have 2,793,575 ridership. Then July of 2013 will see an increase with a total of 2,900,579 ridership. However, the final model forecasted a decrease in ridership with a total of 2,807,599 ridership for the month of August. Table 2 below shows the point forecasts along with the 80% and 95% confidence intervals for the possible low and high forecasts range.
 
