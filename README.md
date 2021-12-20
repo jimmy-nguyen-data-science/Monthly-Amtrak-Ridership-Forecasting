@@ -43,6 +43,7 @@ To clone this repository onto your device, use the commands below:
 
 ## Technologies
 - R-programming Language and Rstudio
+- Tableau
 - Microsoft Powerpoint
 - Microsoft Word
 
