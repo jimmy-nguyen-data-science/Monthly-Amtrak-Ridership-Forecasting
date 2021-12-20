@@ -108,8 +108,14 @@ Forecasting with time-series data also requires the appropriate partitioning to 
 [R-studio Notebook - PDF](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Code/Monthly-Amtrak-Ridership-Forecasting-Final-Project---Team-3.pdf)
 
 # Data Visualizations
-![]()
-
+![EDA](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/EDA.png)
+![Moving Averages](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Moving%20Averages%20Plot.png)
+![ACF and PCF plot](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/acf%20and%20pcf%20plots.png)
+![Data Preprocessing](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/comparison%20betwern%20different%20differenced%20data.png)
+![Optimal Exponential Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Models%20with%20Additive%20or%20multiplicative%20trends.png)
+![AR1 Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/ar1%20model.png)
+![ARIMA Model](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/optimal%20arima%20model.png)
+![Seasonal Naive Model][https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/seasonality%20naive%20model.png)
 
 # Performance Results
 ![Performance Results](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Final%20Results.PNG)
@@ -118,6 +124,7 @@ Based on the results, there are a handful of different performance metrics to ev
 
 
 # Conclusion
+![Tableau Final Forecasts](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/Tableau%20Forecast%20Model.png)
 ![Final Forecasts](https://github.com/jimmy-nguyen-data-science/Monthly-Amtrak-Ridership-Forecasting/blob/main/Plots/final%20forecasts.PNG)
 
 The final model was used to make forecasts for the month of June to August of 2013. June of 2013 is forecasted to have 2,793,575 ridership. Then July of 2013 will see an increase with a total of 2,900,579 ridership. However, the final model forecasted a decrease in ridership with a total of 2,807,599 ridership for the month of August. Table 2 below shows the point forecasts along with the 80% and 95% confidence intervals for the possible low and high forecasts range.
