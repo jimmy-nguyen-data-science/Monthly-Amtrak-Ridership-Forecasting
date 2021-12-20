@@ -1,4 +1,4 @@
-# Monthly-Amtrak-Ridership-Forecasting Project
+# Time Series Analysis Project: Forecasting Monthly Amtrak Ridership
 
 # Table of Contents
 
